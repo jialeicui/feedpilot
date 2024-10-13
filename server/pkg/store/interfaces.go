@@ -31,7 +31,7 @@ type ObjectStore interface {
 }
 
 type KvStore interface {
-	Put(key string, value Stringer)
-	Get(key string) string
-	List(offset, limit int) []string
+	Put(key string, value Stringer) error
+	Get(key string) (string, error)
+	List(offset, limit int) ([]string, error)
 }
