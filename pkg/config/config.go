@@ -14,19 +14,6 @@ type Config struct {
 
 	// Debug is the flag to enable debug mode.
 	Debug bool `json:"debug" yaml:"debug"`
-
-	Platforms []*PlatformConfig `json:"platforms" yaml:"platforms"`
-}
-
-type PlatformConfig struct {
-	// Name is the name of the platform.
-	Name string `json:"name" yaml:"name"`
-
-	Weibo *WeiboConfig `json:"weibo,omitempty" yaml:"weibo,omitempty"`
-}
-
-type WeiboConfig struct {
-	RandomSleep bool `json:"random_sleep" yaml:"random_sleep"`
 }
 
 func Load(path string) (*Config, error) {
