@@ -4,8 +4,10 @@ import (
 	"github.com/jialeicui/feedpilot/pkg/meta"
 )
 
+//go:generate mockgen -source=$GOFILE -destination=mock_$GOFILE -package=$GOPACKAGE -typed
 type Stringer interface {
-	String() string
+	String() (string, error)
+	Load(string) error
 }
 
 type UserStore interface {
@@ -33,5 +35,6 @@ type ObjectStore interface {
 type KvStore interface {
 	Put(key string, value Stringer) error
 	Get(key string) (string, error)
+	Delete(key string) error
 	List(offset, limit int) ([]string, error)
 }
