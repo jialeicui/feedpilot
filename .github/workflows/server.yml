@@ -20,10 +20,10 @@ jobs:
         go-version: 1.23
 
     - name: Tidy
-      working-directory: ./server
-      run: go mod tidy -x && git diff --exit-code go.mod go.sum
+      working-directory: .
+      run: go mod tidy && git diff --exit-code go.mod go.sum
 
     - name: Test
-      working-directory: ./server
+      working-directory: .
       run: go test -v ./...
 
