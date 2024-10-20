@@ -19,6 +19,7 @@ func TestNewBadger(t *testing.T) {
 }
 
 func TestBadger(t *testing.T) {
+	// TODO refactor this test
 	var (
 		must   = require.New(t)
 		dir    = t.TempDir()
@@ -27,7 +28,7 @@ func TestBadger(t *testing.T) {
 	must.NoError(err)
 	must.NotNil(b)
 
-	err = b.Put("key", testStringer("foo"))
+	err = b.Put("key", newStringer("foo"))
 	must.NoError(err)
 
 	v, err := b.Get("key")
@@ -35,7 +36,7 @@ func TestBadger(t *testing.T) {
 	must.Equal("foo", v)
 
 	bWithBucket := b.WithBucket("bucket")
-	err = bWithBucket.Put("key", testStringer("bar"))
+	err = bWithBucket.Put("key", newStringer("bar"))
 	must.NoError(err)
 
 	v, err = bWithBucket.Get("key")
@@ -59,7 +60,7 @@ func TestBadger(t *testing.T) {
 
 	for _, db := range []store.KvStore{b, bWithBucket} {
 		// put another key then test list with offset and limit
-		err = db.Put("key2", testStringer("bar"))
+		err = db.Put("key2", newStringer("bar"))
 		must.NoError(err)
 		list, err = db.List(1, 1)
 		must.NoError(err)
@@ -71,10 +72,30 @@ func TestBadger(t *testing.T) {
 		must.NoError(err)
 		must.ElementsMatch([]string{"key"}, list)
 	}
+
+	// delete non-existing key
+	err = b.Delete("non-existing-key")
+	must.NoError(err)
+
+	// delete existing key
+	err = b.Delete("key")
+	must.NoError(err)
+
+	_, err = b.Get("key")
+	must.Error(err)
 }
 
 type testStringer string
 
-func (t testStringer) String() string {
-	return string(t)
+func (t *testStringer) String() (string, error) {
+	return string(*t), nil
+}
+
+func (t *testStringer) Load(s string) error {
+	*t = testStringer(s)
+	return nil
+}
+
+func newStringer(s string) *testStringer {
+	return (*testStringer)(&s)
 }

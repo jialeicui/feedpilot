@@ -64,8 +64,12 @@ func (b *Badger) WithBucket(bucket string) *Badger {
 
 func (b *Badger) Put(key string, value store.Stringer) error {
 	key = fmt.Sprintf("%s/%s", b.bucket, key)
+	val, err := value.String()
+	if err != nil {
+		return err
+	}
 	return b.store.Update(func(txn *badger.Txn) error {
-		return txn.Set([]byte(key), []byte(value.String()))
+		return txn.Set([]byte(key), []byte(val))
 	})
 }
 
@@ -86,6 +90,13 @@ func (b *Badger) Get(key string) (string, error) {
 		return "", err
 	}
 	return value, nil
+}
+
+func (b *Badger) Delete(key string) error {
+	key = fmt.Sprintf("%s/%s", b.bucket, key)
+	return b.store.Update(func(txn *badger.Txn) error {
+		return txn.Delete([]byte(key))
+	})
 }
 
 // List returns a list of keys with offset and limit
