@@ -89,9 +89,11 @@ func (b *Badger) Get(key string) (string, error) {
 }
 
 // List returns a list of keys with offset and limit
-// TODO support offset, limit
 func (b *Badger) List(offset, limit int) ([]string, error) {
-	var keys []string
+	var (
+		keys   []string
+		cursor int
+	)
 	err := b.store.View(func(txn *badger.Txn) error {
 		opts := badger.DefaultIteratorOptions
 		it := txn.NewIterator(opts)
@@ -99,9 +101,19 @@ func (b *Badger) List(offset, limit int) ([]string, error) {
 
 		firstKey := []byte(fmt.Sprintf("%s/", b.bucket))
 		for it.Seek(firstKey); it.ValidForPrefix(firstKey); it.Next() {
+			cursor++
+			if offset > 0 && cursor <= offset {
+				continue
+			}
+
 			item := it.Item()
 			k := item.Key()
+			// remove the bucket prefix
+			k = k[len(b.bucket)+1:]
 			keys = append(keys, string(k))
+			if limit > 0 && len(keys) >= limit {
+				break
+			}
 		}
 		return nil
 	})
