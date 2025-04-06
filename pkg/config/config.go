@@ -14,6 +14,8 @@ type Config struct {
 
 	// Debug is the flag to enable debug mode.
 	Debug bool `json:"debug" yaml:"debug"`
+
+	Weibo *Weibo `json:"weibo" yaml:"weibo"`
 }
 
 func Load(path string) (*Config, error) {
