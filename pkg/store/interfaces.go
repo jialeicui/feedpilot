@@ -32,6 +32,12 @@ type ObjectStore interface {
 	Get(key string) []byte
 }
 
+type Store struct {
+	UserStore   UserStore
+	PostStore   PostStore
+	ObjectStore ObjectStore
+}
+
 type KvStore interface {
 	Put(key string, value Stringer) error
 	Get(key string) (string, error)
