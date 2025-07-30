@@ -50,6 +50,26 @@ func (u *userStore) List(offset, limit int) ([]*meta.User, error) {
 	return users, nil
 }
 
+func (u *userStore) Search(query string, offset, limit int) ([]*meta.User, error) {
+	keys, err := u.store.Search(query, offset, limit)
+	if err != nil {
+		return nil, err
+	}
+	users := make([]*meta.User, 0, len(keys))
+	for _, key := range keys {
+		val, err := u.store.Get(key)
+		if err != nil {
+			return nil, err
+		}
+		var user = new(meta.User)
+		if err := user.Load(val); err != nil {
+			return nil, err
+		}
+		users = append(users, user)
+	}
+	return users, nil
+}
+
 func NewUserStore(kv KvStore) UserStore {
 	return &userStore{
 		store: kv,

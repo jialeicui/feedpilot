@@ -1,6 +1,15 @@
 package meta
 
+import (
+	"encoding/json"
+)
+
 type PostID string
+
+func (p *PostID) String() string {
+	return string(*p)
+}
+
 type Post struct {
 	ID        PostID  `json:"id"`
 	Text      string  `json:"text"`
@@ -8,6 +17,18 @@ type Post struct {
 	Links     string  `json:"links,omitempty"`
 	Location  string  `json:"location,omitempty"`
 	Timestamp string  `json:"timestamp,omitempty"`
+}
+
+func (p *Post) String() (string, error) {
+	content, err := json.Marshal(p)
+	if err != nil {
+		return "", err
+	}
+	return string(content), nil
+}
+
+func (p *Post) Load(data string) error {
+	return json.Unmarshal([]byte(data), p)
 }
 
 type PostMeta struct {

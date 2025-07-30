@@ -43,4 +43,11 @@ func TestUserStore(t *testing.T) {
 	users, err := us.List(0, 0)
 	must.NoError(err)
 	must.Equal([]*meta.User{user}, users)
+
+	// Test Search
+	kv.EXPECT().Search("user1", 0, 10).Return([]string{"1"}, nil)
+	kv.EXPECT().Get("1").Return(`{"id":"1","username":"user1"}`, nil)
+	users, err = us.Search("user1", 0, 10)
+	must.NoError(err)
+	must.Equal([]*meta.User{user}, users)
 }

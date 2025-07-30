@@ -18,6 +18,8 @@ type UserStore interface {
 	// offset is the starting index of the list
 	// limit is the maximum number of users to return, 0 means no limit
 	List(offset, limit int) ([]*meta.User, error)
+	// Search searches for users by query string in username, display name, and bio
+	Search(query string, offset, limit int) ([]*meta.User, error)
 }
 
 type PostStore interface {
@@ -25,6 +27,8 @@ type PostStore interface {
 	Get(ID meta.PostID) (*meta.Post, error)
 	Delete(ID meta.PostID) error
 	List(offset, limit int) ([]*meta.Post, error)
+	// Search searches for posts by query string in post text content
+	Search(query string, offset, limit int) ([]*meta.Post, error)
 }
 
 type ObjectStore interface {
@@ -43,4 +47,6 @@ type KvStore interface {
 	Get(key string) (string, error)
 	Delete(key string) error
 	List(offset, limit int) ([]string, error)
+	// Search searches for keys whose values contain the query string
+	Search(query string, offset, limit int) ([]string, error)
 }

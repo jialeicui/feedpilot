@@ -85,6 +85,71 @@ func TestBadger(t *testing.T) {
 	must.Error(err)
 }
 
+func TestBadgerSearch(t *testing.T) {
+	var (
+		must   = require.New(t)
+		dir    = t.TempDir()
+		b, err = NewBadger(dir)
+	)
+	must.NoError(err)
+	must.NotNil(b)
+
+	// Put some test data
+	err = b.Put("user1", newStringer(`{"username":"alice","display_name":"Alice Smith","bio":"Software developer"}`))
+	must.NoError(err)
+	err = b.Put("user2", newStringer(`{"username":"bob","display_name":"Bob Jones","bio":"Designer and artist"}`))
+	must.NoError(err)
+	err = b.Put("post1", newStringer(`{"text":"Hello world this is my first post"}`))
+	must.NoError(err)
+	err = b.Put("post2", newStringer(`{"text":"Another day, another commit"}`))
+	must.NoError(err)
+
+	// Test search for "alice" - should find user1
+	keys, err := b.Search("alice", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"user1"}, keys)
+
+	// Test search for "developer" - should find user1
+	keys, err = b.Search("developer", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"user1"}, keys)
+
+	// Test search for "artist" - should find user2
+	keys, err = b.Search("artist", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"user2"}, keys)
+
+	// Test search for "Hello" - should find post1
+	keys, err = b.Search("Hello", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"post1"}, keys)
+
+	// Test search for "commit" - should find post2
+	keys, err = b.Search("commit", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"post2"}, keys)
+
+	// Test search for "post" - should find post1
+	keys, err = b.Search("post", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"post1"}, keys)
+
+	// Test case insensitive search
+	keys, err = b.Search("ALICE", 0, 10)
+	must.NoError(err)
+	must.ElementsMatch([]string{"user1"}, keys)
+
+	// Test search with no results
+	keys, err = b.Search("nonexistent", 0, 10)
+	must.NoError(err)
+	must.Empty(keys)
+
+	// Test search with pagination
+	keys, err = b.Search("e", 0, 1) // should find at least one item containing "e"
+	must.NoError(err)
+	must.Len(keys, 1)
+}
+
 type testStringer string
 
 func (t *testStringer) String() (string, error) {
